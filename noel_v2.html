@@ -63,6 +63,12 @@
             text-align: center;
             transition: opacity 0.5s ease; /* Add transition for smooth hiding */
         }
+        /* Audio controls container */
+        #audio-container {
+            position: absolute; top: 12px; right: 12px; z-index: 30; pointer-events: auto; text-align: right;
+        }
+        #audio-container .hint-text { margin-top: 6px; text-align: right; }
+        #audio-container audio { display: none; }
         .upload-btn {
             background: rgba(20, 20, 20, 0.6); 
             border: 1px solid rgba(212, 175, 55, 0.4); 
@@ -120,6 +126,13 @@
     <div id="loader">
         <div class="spinner"></div>
         <div class="loader-text">Loading Holiday Magic</div>
+    </div>
+
+    <!-- Audio player (place `last_christmas.mp3` in the same folder as this HTML file) -->
+    <div id="audio-container">
+        <audio id="bg-music" src="last_christmas.mp3" preload="auto" loop></audio>
+        <button id="audio-toggle" class="upload-btn" style="padding:8px 14px;">Play Music</button>
+        <div class="hint-text">Đặt file `last_christmas.mp3` cùng thư mục với file HTML</div>
     </div>
 
     <div id="canvas-container"></div>
@@ -580,6 +593,26 @@
             });
             document.getElementById('file-input').addEventListener('change', handleImageUpload);
             
+                // --- Audio controls wiring ---
+                const _audio = document.getElementById('bg-music');
+                const _audioBtn = document.getElementById('audio-toggle');
+                if (_audio && _audioBtn) {
+                    _audioBtn.addEventListener('click', async () => {
+                        try {
+                            if (_audio.paused) {
+                                await _audio.play();
+                                _audioBtn.textContent = 'Pause Music';
+                            } else {
+                                _audio.pause();
+                                _audioBtn.textContent = 'Play Music';
+                            }
+                        } catch (err) {
+                            console.warn('Audio play failed or was blocked by the browser', err);
+                        }
+                    });
+                    _audio.addEventListener('play', () => _audioBtn.textContent = 'Pause Music');
+                    _audio.addEventListener('pause', () => _audioBtn.textContent = 'Play Music');
+                }
             // Toggle UI logic - ONLY hide controls, keep title
             window.addEventListener('keydown', (e) => {
                 if (e.key.toLowerCase() === 'h') {
